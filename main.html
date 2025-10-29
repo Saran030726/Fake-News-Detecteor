@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake News Detection | Tech Innovators</title>
+<style>
+/* ===== THEME VARIABLES ===== */
+:root {
+  --bg-a:#e6f5ff; --bg-b:#f6fbff;
+  --glass:rgba(255,255,255,.75);
+  --card-glass:rgba(255,255,255,.6);
+  --text:#012032; --muted:#38607b;
+  --accent1:#2b8cff; --accent2:#7dd3fc; --accent3:#ff7ab6;
+  --shadow:0 12px 30px rgba(6,18,35,.06);
+}
+:root.dark {
+  --bg-a:#0b132b; --bg-b:#17203a;
+  --glass:rgba(255,255,255,.06);
+  --card-glass:rgba(255,255,255,.07);
+  --text:#eaf6ff; --muted:#9fb6d1;
+  --accent1:#4fa3ff; --accent2:#8b5cf6; --accent3:#ff6fb5;
+  --shadow:0 12px 30px rgba(0,0,0,.45);
+}
+
+/* ===== GLOBAL ===== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",system-ui,sans-serif;}
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--bg-a),var(--bg-b));
+  color:var(--text);
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px;overflow-x:hidden;transition:.4s;
+}
+
+/* ===== SPLASH SCREEN ===== */
+.splash{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 30% 30%,var(--accent2),var(--accent1),var(--accent3));
+  color:#fff;font-weight:700;font-size:2.2rem;
+  z-index:100;animation:fadeOut 1s ease 4s forwards;
+}
+.splash p{font-size:1.1rem;margin-top:10px;color:rgba(255,255,255,.8);}
+@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
+
+/* ===== BUBBLES ===== */
+.bubbles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;}
+.bubble{position:absolute;border-radius:50%;filter:blur(10px);animation:float 18s ease-in-out infinite;}
+@keyframes float{0%{transform:translateY(0) scale(1);}50%{transform:translateY(-30px) scale(1.05);}100%{transform:translateY(0) scale(1);}}
+
+/* Bubble Colors */
+.bubble:nth-child(1){width:200px;height:200px;left:10%;top:15%;background:linear-gradient(135deg,var(--accent1),var(--accent2));opacity:.25;}
+.bubble:nth-child(2){width:150px;height:150px;right:10%;top:30%;background:linear-gradient(135deg,var(--accent3),var(--accent2));opacity:.2;}
+.bubble:nth-child(3){width:250px;height:250px;left:50%;bottom:10%;background:linear-gradient(135deg,var(--accent1),var(--accent3));opacity:.15;}
+
+/* ===== DASHBOARD ELEMENTS ===== */
+.fadein{opacity:0;transform:translateY(10px);animation:fadeInUp .8s forwards;}
+@keyframes fadeInUp{to{opacity:1;transform:translateY(0);}}
+
+/* ===== TOPBAR ===== */
+.topbar{width:100%;max-width:1200px;display:flex;justify-content:space-between;align-items:center;z-index:5;}
+.logo{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.15);}
+.theme-toggle{background:var(--glass);border-radius:20px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px);box-shadow:var(--shadow);}
+.theme-toggle .dot{width:32px;height:32px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:.3s;}
+
+/* ===== GREETING ===== */
+.greeting{text-align:center;margin-top:40px;z-index:5;}
+.greeting h1{font-size:2rem;margin-bottom:8px;}
+.greeting p{color:var(--muted);}
+
+/* ===== CHAT WINDOW ===== */
+.chat-window{
+  width:100%;
+  max-width:900px;
+  background:var(--glass);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:20px;
+  backdrop-filter:blur(12px);
+  margin-top:25px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow-y:auto;
+  max-height:400px;
+  z-index:5;
+}
+.chat-box .msg{
+  max-width:80%;
+  padding:12px 16px;
+  border-radius:16px;
+  line-height:1.4;
+  box-shadow:0 3px 8px rgba(0,0,0,.1);
+  animation:fadeInUp .3s ease forwards;
+}
+.msg.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  color:#fff;
+}
+.msg.ai{
+  align-self:flex-start;
+  background:var(--card-glass);
+  color:var(--text);
+}
+
+/* ===== SEARCH CARD ===== */
+.search-card{background:var(--glass);border-radius:18px;backdrop-filter:blur(12px);box-shadow:var(--shadow);margin-top:30px;padding:20px;width:100%;max-width:900px;z-index:5;display:flex;flex-direction:column;gap:12px;}
+textarea{width:100%;min-height:90px;border:none;outline:none;border-radius:12px;padding:12px;font-size:1rem;resize:vertical;background:rgba(255,255,255,.4);color:var(--text);}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+.chip{background:rgba(255,255,255,.5);border-radius:999px;padding:8px 14px;cursor:pointer;color:var(--muted);font-weight:500;transition:.2s;}
+.chip:hover{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;transform:scale(1.05);}
+.actions{margin-top:15px;display:flex;gap:10px;justify-content:flex-end;}
+button{border:none;border-radius:12px;cursor:pointer;color:#fff;font-weight:600;padding:10px 18px;background:linear-gradient(135deg,var(--accent1),var(--accent2));transition:.2s;}
+button:hover{transform:scale(1.05);}
+.icon-btn{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));font-size:1.2rem;position:relative;}
+.icon-btn.listening::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--accent1);animation:pulse 1.2s infinite ease-in-out;}
+@keyframes pulse{0%{transform:scale(1);opacity:.8;}100%{transform:scale(1.4);opacity:0;}}
+
+/* ===== GRID ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-top:30px;width:100%;max-width:1200px;z-index:5;}
+.card{background:var(--card-glass);border-radius:16px;padding:20px;backdrop-filter:blur(12px);box-shadow:var(--shadow);}
+.card h3{color:var(--accent1);margin-bottom:6px;}
+.card p{color:var(--muted);}
+.spinner{width:26px;height:26px;border:3px solid rgba(0,0,0,.1);border-top:3px solid var(--accent1);border-radius:50%;margin-top:8px;animation:spin 1s linear infinite;display:none;}
+@keyframes spin{100%{transform:rotate(360deg);}}
+footer{text-align:center;margin-top:30px;color:var(--muted);font-size:.9rem;z-index:5;}
+@media(max-width:600px){.greeting h1{font-size:1.5rem;}}
+</style>
+</head>
+<body>
+<!-- ===== SPLASH SCREEN ===== -->
+<div class="splash" id="splash">
+  <div>Hello, Tech Innovators</div>
+  <p>Initializing Fake News Detection Dashboard...</p>
+</div>
+
+<!-- ===== BUBBLES ===== -->
+<div class="bubbles">
+  <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+</div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar fadein" style="animation-delay:5s">
+  <div><div class="logo">AI</div></div>
+  <div class="theme-toggle" id="themeToggle">☀<div class="dot"></div>🌙</div>
+</div>
+
+<!-- ===== GREETING ===== -->
+<div class="greeting fadein" style="animation-delay:5.3s">
+  <h1 id="greetTitle">Good Day</h1>
+  <p id="greetSub">What can I help you with today?</p>
+</div>
+
+<!-- ===== CHAT WINDOW ===== -->
+<div class="chat-window fadein" style="animation-delay:5.4s">
+  <div id="chatBox" class="chat-box"></div>
+</div>
+
+<!-- ===== SEARCH CARD ===== -->
+<div class="search-card fadein" style="animation-delay:5.6s">
+  <textarea id="newsInput" name="news" rows="6" placeholder="Paste news here..."></textarea>
+  <div class="chips">
+    <div class="chip">Check authenticity</div>
+    <div class="chip">Summarize news</div>
+    <div class="chip">Analyze tone</div>
+    <div class="chip">Generate report</div>
+    <div class="chip">Fact-check statement</div>
+  </div>
+  <div class="actions">
+    <button class="icon-btn" id="micBtn">🎤</button>
+    <button id="goBtn" type="submit">Check →</button>
+  </div>
+</div>
+
+<!-- ===== GRID CARDS ===== -->
+<div class="grid fadein" style="animation-delay:5.9s">
+  <div class="card"><h3>🕒 Recent Checks</h3><div id="recentList" class="muted">No recent checks yet.</div></div>
+  <div class="card"><h3>👥 Team</h3><p><strong>Tech Innovators</strong><br>Sri Sairam Engineering College</p><p class="muted">©2025 — Built for innovation.</p></div>
+</div>
+
+<footer class="fadein" style="animation-delay:6.2s">©2025 Tech Innovators | Built with ❤ using HTML & JS</footer>
+
+<script>
+/* ===== THEME TOGGLE ===== */
+const root=document.documentElement,themeToggle=document.getElementById("themeToggle"),dot=themeToggle.querySelector(".dot");
+let dark=false;
+function applyTheme(b){
+  dark=b;
+  if(b){root.classList.add("dark");dot.style.transform="translateX(20px)";}
+  else{root.classList.remove("dark");dot.style.transform="translateX(0)";}
+  localStorage.setItem("themeDark",b);
+}
+themeToggle.onclick=()=>applyTheme(!dark);
+applyTheme(localStorage.getItem("themeDark")==="true");
+
+/* ===== GREETING ===== */
+const hr=new Date().getHours();
+document.getElementById("greetTitle").textContent=hr<12?"Good Morning":hr<18?"Good Afternoon":"Good Evening";
+
+/* ===== UTILITIES ===== */
+const input=document.getElementById("newsInput"),spinner=document.createElement("div"),recent=document.getElementById("recentList");
+spinner.className="spinner";document.body.appendChild(spinner);
+function showSpinner(b){spinner.style.display=b?"block":"none";}
+function addRecent(t){const d=document.createElement("div");d.textContent=t+" — "+new Date().toLocaleTimeString();recent.prepend(d);}
+
+/* ===== CHAT STYLE ===== */
+const chatBox = document.getElementById("chatBox");
+function addMessage(text, sender){
+  const div = document.createElement("div");
+  div.className = msg ${sender};
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/* ===== BACKEND CONNECTION ===== */
+document.getElementById("goBtn").onclick = async (event) => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (!text) {
+    addMessage("⚠ Please enter some news first.", "ai");
+    return;
+  }
+
+  addMessage(text, "user");
+  addMessage("⏳ Analyzing for authenticity...", "ai");
+  showSpinner(true);
+
+  try {
+    const response = await fetch("http://127.0.0.1:1234/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instruct",
+        messages: [
+          { role: "system", content: "You are an AI that detects fake news and explains why." },
+          { role: "user", content: Check this news for authenticity:\n${text} }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    const aiResponse = data.choices?.[0]?.message?.content || "No response received.";
+    addMessage(aiResponse, "ai");
+    addRecent("Backend analysis done");
+  } catch (error) {
+    console.error(error);
+    addMessage("❌ Could not connect to backend. Please check LM Studio & enable CORS.", "ai");
+  } finally {
+    showSpinner(false);
+  }
+};
+
+/* ===== SPLASH TRANSITION ===== */
+window.onload=()=>{setTimeout(()=>document.getElementById("splash").remove(),5000);}
+</script>
+</body>
+</html>
