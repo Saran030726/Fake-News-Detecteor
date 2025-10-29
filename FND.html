@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fake News Detection | Tech Innovators</title>
+<style>
+:root {
+  --bg1: #e6f5ff;
+  --bg2: #f6fbff;
+  --text: #042235;
+  --muted: #345a6e;
+  --accent1: #2b8cff;
+  --accent2: #7dd3fc;
+  --accent3: #ff7ab6;
+  --glass: rgba(255,255,255,0.75);
+  --card-glass: rgba(255,255,255,0.7);
+  --shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+:root.dark {
+  --bg1: #0b132b;
+  --bg2: #17203a;
+  --text: #eaf6ff;
+  --muted: #9fb6d1;
+  --accent1: #4fa3ff;
+  --accent2: #8b5cf6;
+  --accent3: #ff6fb5;
+  --glass: rgba(255,255,255,0.08);
+  --card-glass: rgba(255,255,255,0.1);
+  --shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",system-ui,sans-serif;}
+body {
+  min-height:100vh;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow:hidden;
+  transition:background .4s ease,color .4s ease;
+}
+
+/* splash intro */
+.splash {
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1),var(--accent3));
+  color:#fff;font-weight:700;font-size:2rem;z-index:1000;
+  transition:opacity 1s ease;
+}
+.splash p{margin-top:10px;font-size:1rem;opacity:0.85;}
+.wave{position:absolute;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);animation:wave 8s infinite ease-in-out;}
+@keyframes wave{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+
+/* floating bubbles */
+.bubbles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bubble{position:absolute;border-radius:50%;filter:blur(15px);animation:float 20s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-25px);}}
+.b1{width:250px;height:250px;left:10%;top:10%;background:linear-gradient(135deg,var(--accent1),var(--accent2));opacity:.2;}
+.b2{width:200px;height:200px;right:10%;top:30%;background:linear-gradient(135deg,var(--accent3),var(--accent2));opacity:.15;}
+.b3{width:300px;height:300px;left:45%;bottom:5%;background:linear-gradient(135deg,var(--accent1),var(--accent3));opacity:.12;}
+
+/* topbar */
+.topbar {
+  width:100%;max-width:1200px;margin-top:20px;
+  display:flex;justify-content:space-between;align-items:center;z-index:10;
+}
+.logo{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;}
+.theme-toggle{display:flex;align-items:center;gap:8px;background:var(--glass);border-radius:20px;padding:5px 10px;cursor:pointer;backdrop-filter:blur(10px);}
+.toggle-dot{width:32px;height:32px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:transform .3s;}
+:root.dark .toggle-dot{transform:translateX(24px);}
+
+/* chat layout */
+.chat-container {
+  background:var(--glass);backdrop-filter:blur(10px);box-shadow:var(--shadow);
+  border-radius:16px;margin-top:20px;padding:20px;width:90%;max-width:900px;
+  display:flex;flex-direction:column;height:80vh;overflow:hidden;
+}
+.messages {
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px;scroll-behavior:smooth;
+}
+.msg{display:flex;gap:8px;align-items:flex-end;}
+.msg.user{justify-content:flex-end;}
+.msg.ai{justify-content:flex-start;}
+.bubble-msg{
+  max-width:75%;padding:12px 14px;border-radius:14px;font-size:.95rem;line-height:1.4;box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.msg.user .bubble-msg{
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;border-bottom-right-radius:6px;
+}
+.msg.ai .bubble-msg{
+  background:var(--card-glass);border-bottom-left-radius:6px;color:var(--text);
+}
+.time{font-size:.75rem;color:var(--muted);margin-top:2px;text-align:right;}
+
+/* typing dots */
+.typing span{display:inline-block;width:6px;height:6px;margin:0 2px;background:var(--muted);border-radius:50%;animation:blink 1s infinite;}
+.typing span:nth-child(2){animation-delay:.2s;} .typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,100%{opacity:.2;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
+
+/* input area */
+.input-area{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+textarea{
+  width:100%;min-height:60px;border:none;outline:none;border-radius:10px;padding:10px;font-size:1rem;
+  background:rgba(255,255,255,0.5);resize:none;color:var(--text);
+}
+:root.dark textarea{background:rgba(255,255,255,0.1);}
+.actions{display:flex;justify-content:space-between;align-items:center;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{background:rgba(255,255,255,0.6);border-radius:999px;padding:8px 14px;cursor:pointer;color:var(--muted);font-weight:500;transition:.2s;}
+.chip:hover{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;transform:scale(1.05);}
+.controls{display:flex;gap:8px;}
+button{border:none;border-radius:10px;cursor:pointer;}
+.mic{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;}
+.mic.listening{animation:pulse 1.2s infinite;}
+@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+.send{padding:10px 16px;background:linear-gradient(135deg,var(--accent2),var(--accent3));color:#fff;font-weight:600;}
+
+/* splash fade */
+.hide{opacity:0;visibility:hidden;pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="bubbles"><div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div></div>
+
+<div class="splash" id="splash">
+  <div class="wave"></div>
+  <div id="splashMain">Hello, Tech Innovators</div>
+  <p id="splashSub">Starting up...</p>
+</div>
+
+<div class="topbar">
+  <div class="logo">AI</div>
+  <div class="theme-toggle" id="themeToggle">☀️<div class="toggle-dot"></div>🌙</div>
+</div>
+
+<div class="chat-container">
+  <div class="messages" id="messages"></div>
+  <div class="input-area">
+    <textarea id="userInput" placeholder="Type or paste news text here..."></textarea>
+    <div class="actions">
+      <div class="chips">
+        <div class="chip" id="chip-auth">Check authenticity</div>
+        <div class="chip" id="chip-sum">Summarize news</div>
+        <div class="chip" id="chip-tone">Analyze tone</div>
+        <div class="chip" id="chip-report">Generate report</div>
+        <div class="chip" id="chip-fact">Fact-check statement</div>
+      </div>
+      <div class="controls">
+        <button class="mic" id="micBtn">🎤</button>
+        <button class="send" id="sendBtn">Check →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* splash text change */
+const splash=document.getElementById("splash"),sMain=document.getElementById("splashMain"),sSub=document.getElementById("splashSub");
+setTimeout(()=>{sMain.textContent="Loading AI Modules…";sSub.textContent="Initializing components...";},1500);
+setTimeout(()=>{sMain.textContent="Optimizing Neural Links…";sSub.textContent="Preparing interface...";},3000);
+setTimeout(()=>{sMain.textContent="Dashboard Ready!";sSub.textContent="Launching...";},4500);
+setTimeout(()=>splash.classList.add("hide"),5000);
+
+/* theme toggle */
+const root=document.documentElement,toggle=document.getElementById("themeToggle");
+let dark=JSON.parse(localStorage.getItem("darkMode")||"false");
+function setTheme(d){dark=d;d?root.classList.add("dark"):root.classList.remove("dark");localStorage.setItem("darkMode",JSON.stringify(d));}
+setTheme(dark);
+toggle.onclick=()=>setTheme(!dark);
+
+/* chat elements */
+const msgs=document.getElementById("messages"),input=document.getElementById("userInput");
+function addMessage(text,from){
+  const msg=document.createElement("div");
+  msg.className="msg "+from;
+  const bubble=document.createElement("div");
+  bubble.className="bubble-msg";
+  const time=document.createElement("div");
+  time.className="time";time.textContent=new Date().toLocaleTimeString();
+  bubble.textContent=text;
+  msg.appendChild(bubble);
+  msg.appendChild(time);
+  msgs.appendChild(msg);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function addTyping(){
+  const t=document.createElement("div");
+  t.className="msg ai typing-msg";
+  t.innerHTML='<div class="bubble-msg"><div class="typing"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(t);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){
+  const t=document.querySelector(".typing-msg");
+  if(t) t.remove();
+}
+
+/* typing animation for AI */
+function typeAI(text){
+  addTyping();
+  setTimeout(()=>{
+    removeTyping();
+    const msg=document.createElement("div");
+    msg.className="msg ai";
+    const bubble=document.createElement("div");
+    bubble.className="bubble-msg";
+    msg.appendChild(bubble);
+    const time=document.createElement("div");
+    time.className="time";
+    time.textContent=new Date().toLocaleTimeString();
+    msg.appendChild(time);
+    msgs.appendChild(msg);
+    let i=0;
+    const interval=setInterval(()=>{
+      bubble.textContent=text.slice(0,i);
+      i++;
+      msgs.scrollTop=msgs.scrollHeight;
+      if(i>text.length) clearInterval(interval);
+    },25);
+  },1000);
+}
+
+/* feature logic */
+function checkAuthenticity(t){let s=0;if(t.length<80)s+=.25;if((t.match(/!/g)||[]).length>2)s+=.2;if(/[A-Z]{3,}/.test(t))s+=.15;if(/shocking|click|secret|miracle|urgent/i.test(t))s+=.2;const c=Math.min(100,Math.round(s*100));return s>.5?`⚠️ Possibly fake (confidence ${c}%)`:`✅ Likely real (confidence ${c}%)`;}
+function summarize(t){return t.split(/[.!?]/).slice(0,2).join(". ")+"...";}
+function tone(t){t=t.toLowerCase();let p=(t.match(/good|success|happy|love|benefit/g)||[]).length,n=(t.match(/bad|hate|fail|angry|risk/g)||[]).length;return p>n?`🙂 Positive tone detected.`:n>p?`☹️ Negative tone detected.`:`😐 Neutral tone.`;}
+function fact(t){return /http/.test(t)?`🔗 Contains URL(s) — verify sources.`:`No explicit sources found.`;}
+function report(t){return `🧾 Report generated — authenticity, tone, and summary compiled.`;}
+
+/* triggers */
+function handleFeature(f){
+  const text=input.value.trim();
+  if(!text){addAI("Please enter some news text first.");return;}
+  addMessage(text,"user");
+  let result="";
+  switch(f){
+    case"auth":result=checkAuthenticity(text);break;
+    case"sum":result=summarize(text);break;
+    case"tone":result=tone(text);break;
+    case"fact":result=fact(text);break;
+    case"report":result=report(text);break;
+  }
+  typeAI(result);
+  input.value="";
+}
+
+/* shortcuts */
+document.getElementById("chip-auth").onclick=()=>handleFeature("auth");
+document.getElementById("chip-sum").onclick=()=>handleFeature("sum");
+document.getElementById("chip-tone").onclick=()=>handleFeature("tone");
+document.getElementById("chip-fact").onclick=()=>handleFeature("fact");
+document.getElementById("chip-report").onclick=()=>handleFeature("report");
+document.getElementById("sendBtn").onclick=()=>handleFeature("auth");
+
+/* mic input */
+const mic=document.getElementById("micBtn");
+let rec;
+if('webkitSpeechRecognition'in window||'SpeechRecognition'in window){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  rec=new SR();rec.lang='en-US';rec.interimResults=false;
+  rec.onstart=()=>mic.classList.add("listening");
+  rec.onend=()=>mic.classList.remove("listening");
+  rec.onresult=e=>{input.value=e.results[0][0].transcript;};
+  mic.onclick=()=>{try{rec.start();}catch(e){}}
+}else mic.onclick=()=>alert("Speech recognition not supported.");
+
+function addAI(t){typeAI(t);}
+</script>
+</body>
+</html>
